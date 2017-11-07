@@ -11,7 +11,8 @@ public:
     NonStandartAcid(QString const& name);
     NonStandartAcid(NonStandartAcid const& obj);
     void setName(const QString &name) override;
+    QString getName();
 
-private:
+public:
     QString name;
 };

@@ -1,4 +1,5 @@
 #include "nonstandartacid.h"
+#include <QDebug>
 
 
 static std::vector<QString> LIST_NON_STANDART_ACIDS = {"3,3,5-triiodothyronine", "3,4-dihydroxyproline",
@@ -11,18 +12,22 @@ static std::vector<QString> LIST_NON_STANDART_ACIDS = {"3,3,5-triiodothyronine",
 "thyroxine"};
 
 
-NonStandartAcid::NonStandartAcid(QString const& name): AminoAcid(name) {
+NonStandartAcid::NonStandartAcid(QString const& name) {
     this->setName(name);
 }
 
-NonStandartAcid::NonStandartAcid(NonStandartAcid const& obj): AminoAcid(obj) {
+NonStandartAcid::NonStandartAcid(NonStandartAcid const& obj) {
     this->name = obj.name;
 }
 
 void NonStandartAcid::setName(const QString &name) {
     if(std::binary_search(LIST_NON_STANDART_ACIDS.begin(), LIST_NON_STANDART_ACIDS.end(), name)) {
-         this->name = name;
+        this->name = name;
     } else {
         throw(std::exception());
     }
+}
+
+QString NonStandartAcid::getName() {
+    return name;
 }

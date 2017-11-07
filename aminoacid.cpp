@@ -18,7 +18,7 @@ QString AminoAcid::getLongName() {
 }
 
 QString AminoAcid::getName() {
-    return name;
+    return this->name;
 }
 
 void AminoAcid::setName(QString const& name) {

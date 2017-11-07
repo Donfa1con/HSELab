@@ -10,7 +10,7 @@ public:
     AminoAcid() = default;
     AminoAcid(QString name);
     AminoAcid(const AminoAcid & object);
-    virtual ~AminoAcid() = default;
+    ~AminoAcid() = default;
     virtual QString getName();
     QString getLongName();
     virtual void setName(QString const& name);

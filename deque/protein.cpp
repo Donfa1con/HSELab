@@ -2,10 +2,11 @@
 #include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <typeinfo>
 
 Protein::~Protein() {
     while(_size) {
-        this->popBack();
+        delete this->popBack();
     }
 }
 
@@ -24,14 +25,14 @@ Protein::Protein(const Protein &object) {
     }
 }
 
-AminoAcid Protein::back() const {
+AminoAcid* Protein::back() const {
     if(!_size) {
         throw(std::exception());
     }
     return this->tail->data;
 }
 
-AminoAcid Protein::front() const {
+AminoAcid* Protein::front() const {
     if(!_size) {
         throw(std::exception());
     }
@@ -46,7 +47,13 @@ size_t Protein::size() const {
     return _size;
 }
 
-void Protein::pushBack(const AminoAcid &acid) {
+void Protein::pushBack(AminoAcid* acid) {
+    AminoAcid * newAcid;
+    if(acid->getName().size() == 1) {
+        newAcid = new AminoAcid(*acid);
+    } else {
+        newAcid = new NonStandartAcid(acid->getName());
+    }
     Protein::Node *newTail = new Protein::Node();
     if(!_size) {
         head = newTail;
@@ -56,11 +63,17 @@ void Protein::pushBack(const AminoAcid &acid) {
         tail->next = newTail;
         tail = newTail;
     }
-    newTail->data = acid;
+    newTail->data = newAcid;
     _size++;
 }
 
-void Protein::pushFront(const AminoAcid &acid) {
+void Protein::pushFront(AminoAcid* acid) {
+    AminoAcid * newAcid;
+    if(acid->getName().size() == 1) {
+        newAcid = new AminoAcid(*acid);
+    } else {
+        newAcid = new NonStandartAcid(acid->getName());
+    }
     Protein::Node *newHead = new Protein::Node();
     if(!_size) {
         head = newHead;
@@ -70,15 +83,21 @@ void Protein::pushFront(const AminoAcid &acid) {
         head->previous = newHead;
         head = newHead;
     }
-    newHead->data = acid;
+    newHead->data = newAcid;
     _size++;
 }
 
-AminoAcid Protein::popBack() {
-    AminoAcid popAcid(tail->data);
+AminoAcid* Protein::popBack() {
+    AminoAcid *popAcid;
+    if(tail->data->getName().size() == 1) {
+        popAcid = new AminoAcid(*tail->data);
+    } else {
+        popAcid = new NonStandartAcid(tail->data->getName());
+    }
     if(!_size) {
         throw(std::exception());
     }
+    delete tail->data;
     if(_size == 1) {
         delete tail;
         tail = nullptr;
@@ -93,11 +112,18 @@ AminoAcid Protein::popBack() {
     return popAcid;
 }
 
-AminoAcid Protein::popFront() {
-    AminoAcid popAcid(head->data);
+AminoAcid* Protein::popFront() {
+    AminoAcid *popAcid;
+    if(head->data->getName().size() == 1) {
+        popAcid = new AminoAcid(*head->data);
+    } else {
+        popAcid = new NonStandartAcid(head->data->getName());
+    }
     if(!_size) {
         throw(std::exception());
     }
+
+    delete head->data;
     if(_size == 1) {
         delete head;
         tail = nullptr;
@@ -131,7 +157,8 @@ Protein & Protein::operator+=(const Protein& right) {
             iteratorRight = right.head;
 
             while(iteratorLeft) {
-                if(iteratorLeft->data.getName() != iteratorRight->data.getName()) {
+                qDebug() << iteratorLeft->data->getName() << iteratorRight->data->getName();
+                if(iteratorLeft->data->getName() != iteratorRight->data->getName()) {
                     isOverlap = false;
                 }
                 iteratorLeft = iteratorLeft->next;
@@ -142,10 +169,17 @@ Protein & Protein::operator+=(const Protein& right) {
         }
 
         while(iteratorRight && isOverlap) {
+            qDebug() << this->front()->getName();
+            qDebug() << this->back()->getName();
+            qDebug() << iteratorRight->data->getName() << 111;
             this->pushBack(iteratorRight->data);
             iteratorRight = iteratorRight->next;
         }
     }
+    qDebug() << 222;
+    qDebug() << this->front()->getName();
+    qDebug() << this->back()->getName();
+    qDebug() << 222;
     return *this;
 }
 
@@ -154,7 +188,7 @@ Protein & Protein::operator+=(const Protein& right) {
 //    Protein::Node *iterator = this->head;
 
 //    while (iterator) {
-//        aminoSequence += iterator->data.getName();
+//        aminoSequence += iterator->data->getName();
 //        iterator = iterator->next;
 //    }
 //    QFile sequenceFile(fileName);
@@ -169,7 +203,7 @@ void Protein::saveSequenceToFile(QString fileName) {
     Protein::Node *iterator = this->head;
 
     while (iterator) {
-        aminoSequence.push_back(QJsonValue(iterator->data.getName()));
+        aminoSequence.push_back(QJsonValue((*iterator->data).getName()));
         iterator = iterator->next;
     }
     QJsonDocument doc(aminoSequence);
@@ -208,19 +242,17 @@ void Protein::loadSequenceFromFile(QString fileName) {
     while(!this->isEmpty()) {
         this->popBack();
     }
-
     QString aminoSequence(sequenceFile.readAll());
     sequenceFile.close();
 
     QJsonDocument doc = QJsonDocument::fromJson(aminoSequence.toUtf8());
     QJsonArray array(doc.array());
-
     for(auto acid: array) {
         if(acid.toString().size() == 1) {
-            AminoAcid tempAcid(acid.toString());
+            AminoAcid *tempAcid = new AminoAcid(acid.toString());
             this->pushBack(tempAcid);
         } else {
-            NonStandartAcid tempAcid(acid.toString());
+            NonStandartAcid *tempAcid = new NonStandartAcid(acid.toString());
             this->pushBack(tempAcid);
         }
     }
