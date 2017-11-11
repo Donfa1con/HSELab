@@ -28,6 +28,6 @@ void NonStandartAcid::setName(const QString &name) {
     }
 }
 
-QString NonStandartAcid::getName() {
+QString NonStandartAcid::getLongName() {
     return name;
 }

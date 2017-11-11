@@ -1,21 +1,19 @@
 #pragma once
 
+#include "abstractacid.h"
 #include <QString>
 #include <QRegExp>
 
 
-class AminoAcid
+class AminoAcid : public AbstractAcid
 {
 public:
-    AminoAcid() = default;
     AminoAcid(QString name);
     AminoAcid(const AminoAcid & object);
-    ~AminoAcid() = default;
-    virtual QString getName();
     QString getLongName();
-    virtual void setName(QString const& name);
-
-    virtual AminoAcid& operator = (const AminoAcid& right); // 2 Laba
+    QString getShortName();
+    void setName(QString const& name);
+    AminoAcid& operator = (const AminoAcid& right);
 private:
     QChar name;
 };

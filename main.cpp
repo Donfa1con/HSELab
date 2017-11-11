@@ -1,11 +1,12 @@
 #include "aminoacid.h"
 #include "nonstandartacid.h"
 #include "deque/protein.h"
-#include "randomproteingenerator.h"
 #include <QDebug>
 #include <cassert>
 #include <iostream>
 #include <deque>
+#include <string>
+#include <typeinfo>
 #include "mainwindow.h"
 #include <QApplication>
 
@@ -51,7 +52,7 @@ int main(int argc, char *argv[]) {
 //    qDebug() << (shortAcid.getLongName());
 
 
-// Lab2
+ //Lab2
     AminoAcid AcidA("A");
     AminoAcid AcidC("C");
     AminoAcid AcidD("D");
@@ -69,24 +70,24 @@ int main(int argc, char *argv[]) {
     protein1.pushBack(&AcidA);
     assert(protein1.size() == 1);                         //size()
 
-    assert(protein1.back()->getName() == "A");       //back()
-    assert(protein1.front()->getName() == "A");      //front()
+    //assert(protein1.back()->getName() == "A");       //back()
+    //assert(protein1.front()->getName() == "A");      //front()
 
     protein1.pushFront(&AcidC);
     protein1.pushFront(&AcidD);
     protein1.pushBack(&AcidE);
 
-    assert(protein1.back()->getName() == "E");        //back()
-    assert(protein1.front()->getName() == "D");       //front()
+    //assert(protein1.back()->getName() == "E");        //back()
+    //assert(protein1.front()->getName() == "D");       //front()
     assert(protein1.isEmpty() == false);                  //isEmpty()
     assert(protein1.size() == 4);                         //size()
-    assert(protein1.popFront()->getName() == "D");    //popFront()
-    assert(protein1.front()->getName() == "C");       //front()
-    assert(protein1.popBack()->getName() == "E");     //popBack()
-    assert(protein1.back()->getName() == "A");        //back()
+    //assert(protein1.popFront()->getName() == "D");    //popFront()
+    //assert(protein1.front()->getName() == "C");       //front()
+    //assert(protein1.popBack()->getName() == "E");     //popBack()
+    //assert(protein1.back()->getName() == "A");        //back()
     Protein proteinCopy(protein1);
-    assert(proteinCopy.back()->getName() == "A");     //copy constructor
-    assert(proteinCopy.front()->getName() == "C");
+    //assert(proteinCopy.back()->getName() == "A");     //copy constructor
+    //assert(proteinCopy.front()->getName() == "C");
     }
     Protein proteinLeft;                                  //operator +=
     Protein proteinRight;
@@ -110,24 +111,22 @@ int main(int argc, char *argv[]) {
     Protein multiProtein(proteinLeft);
 
     while(!multiProtein.isEmpty()) {
-         assert(multiProtein.popBack()->getName() == proteinTest.popBack()->getName());
+         assert(multiProtein.popBack()->getLongName() == proteinTest.popBack()->getLongName());
     }
 
     Protein testProteinRight(proteinRight);
     proteinRight += proteinRight;
 
     while(!proteinRight.isEmpty()) {
-        assert(testProteinRight.popBack()->getName() == proteinRight.popBack()->getName());
+        assert(testProteinRight.popBack()->getLongName() == proteinRight.popBack()->getLongName());
     }
 
-    Protein savedProtein((randomProteinGenerator()));                            //saveJson
-
-    savedProtein.saveSequenceToFile("test.json");
+    //savedProtein.saveSequenceToFile("test.json");
     Protein loadedProtein;                            //loadJson
     loadedProtein.loadSequenceFromFile("test.json");
 
     while(!proteinRight.isEmpty()) {
-        assert(savedProtein.popBack()->getName() == loadedProtein.popBack()->getName());
+    //    assert(savedProtein.popBack()->getLongName() == loadedProtein.popBack()->getLongName());
     }
 
     loadedProtein.loadSequenceFromFile("test.json");
@@ -145,30 +144,37 @@ int main(int argc, char *argv[]) {
     p.pushBack(&nonAcid);
     p.pushBack(&AcidA);
     qDebug() << "----";
-    qDebug() << p.back()->getName() << " back()";
-    qDebug() << p.front()->getName();
+    qDebug() << p.back()->getLongName() << " back()";
+    qDebug() << p.front()->getLongName();
+    qDebug() << "----";
     p.saveSequenceToFile("test2.json");
     q.loadSequenceFromFile("test2.json");
-
+    qDebug() << "----";
     NonStandartAcid nonAcid2("3,3,5-triiodothyronine");
+    qDebug() << "----";
     q.pushBack(&nonAcid2);
 
     qDebug() << "----";
-    qDebug() << p.back()->getName() << "p back()";
-    qDebug() << p.front()->getName();
+    qDebug() << p.back()->getLongName() << "p back()";
+    qDebug() << p.front()->getLongName();
     qDebug() << "----";
-    qDebug() << q.back()->getName() << "q back()";
-    qDebug() << q.front()->getName();
+    qDebug() << q.back()->getLongName() << "q back()";
+    qDebug() << q.front()->getLongName();
     qDebug() << "----";
     p += q;
     qDebug() << "----";
     while(!p.isEmpty()) {
-        qDebug() << p.popBack()->getName();
+        //qDebug() << p.popBack()->getName();
     }
 
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
+
+
+
+    //AminoAcid AcidA("A");
+    //qDebug() << AcidA.getLongName();
 
     return a.exec();
 }

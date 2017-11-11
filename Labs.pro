@@ -13,8 +13,6 @@ TEMPLATE = app
 SOURCES += main.cpp \
     aminoacid.cpp \
     deque/protein.cpp \
-    aminoacidpairs.cpp \
-    randomproteingenerator.cpp \
     nonstandartacid.cpp \
     mainwindow.cpp
 
@@ -32,10 +30,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 HEADERS += \
     aminoacid.h \
     deque/protein.h \
-    aminoacidpairs.h \
-    randomproteingenerator.h \
     nonstandartacid.h \
-    mainwindow.h
+    mainwindow.h \
+    abstractacid.h
 
 FORMS += \
     mainwindow.ui

@@ -1,18 +1,18 @@
 #pragma once
 #include "nonstandartacid.h"
-#include "aminoacid.h"
+#include "abstractacid.h"
 #include <QString>
 #include <vector>
 #include <algorithm>
 
-class NonStandartAcid : public AminoAcid
+class NonStandartAcid : public AbstractAcid
 {
 public:
     NonStandartAcid(QString const& name);
     NonStandartAcid(NonStandartAcid const& obj);
-    void setName(const QString &name) override;
-    QString getName();
-
-public:
+    ~NonStandartAcid() = default;
+    void setName(const QString &name);
+    QString getLongName();
+private:
     QString name;
 };
