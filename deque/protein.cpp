@@ -169,9 +169,6 @@ Protein & Protein::operator+=(const Protein& right) {
         }
 
         while(iteratorRight && isOverlap) {
-//            qDebug() << this->front()->getName();
-//            qDebug() << this->back()->getName();
-//            qDebug() << iteratorRight->data->getName() << 111;
             this->pushBack(iteratorRight->data);
             iteratorRight = iteratorRight->next;
         }
@@ -179,29 +176,17 @@ Protein & Protein::operator+=(const Protein& right) {
     return *this;
 }
 
-//void Protein::saveSequenceToFile(QString fileName) {
-//    QString aminoSequence = "";
-//    Protein::Node *iterator = this->head;
-
-//    while (iterator) {
-//        aminoSequence += iterator->data->getName();
-//        iterator = iterator->next;
-//    }
-//    QFile sequenceFile(fileName);
-
-//    sequenceFile.open(QFile::WriteOnly);
-//    sequenceFile.write(aminoSequence.toUtf8());
-//    sequenceFile.close();
-//}
-
 void Protein::saveSequenceToFile(QString fileName) {
     QJsonArray aminoSequence;
     Protein::Node *iterator = this->head;
 
     while (iterator) {
-        if(typeid(*head->data) == typeid(AminoAcid)) {
-            aminoSequence.push_back(QJsonValue((*((AminoAcid *)iterator->data)).getShortName()));
-        } else {
+        qDebug() << typeid(*head->data).name() << typeid(AminoAcid).name();
+        //if(typeid(*head->data) == typeid(AminoAcid)) {
+        try {
+            AminoAcid temp((*((AminoAcid *)iterator->data)).getShortName());
+            aminoSequence.push_back(QJsonValue(temp.getShortName()));
+        } catch(std::exception &e) {
             aminoSequence.push_back(QJsonValue((*((NonStandartAcid *)iterator->data)).getLongName()));
         }
         iterator = iterator->next;
@@ -212,25 +197,6 @@ void Protein::saveSequenceToFile(QString fileName) {
     sequenceFile.write(doc.toJson());
     sequenceFile.close();
 }
-
-//void Protein::loadSequenceFromFile(QString fileName) {
-//    QFile sequenceFile(fileName);
-//    if(!sequenceFile.exists()) {
-//        throw(std::exception(), fileName);
-//    }
-//    sequenceFile.open(QFile::ReadOnly);
-
-//    while(!this->isEmpty()) {
-//        this->popBack();
-//    }
-
-//    QString aminoSequence(sequenceFile.readAll());
-
-//    for(QChar acid: aminoSequence) {
-//        AbstractAcid tempAcid(acid);
-//        this->pushBack(tempAcid);
-//    }
-//}
 
 void Protein::loadSequenceFromFile(QString fileName) {
     QFile sequenceFile(fileName);
@@ -256,4 +222,14 @@ void Protein::loadSequenceFromFile(QString fileName) {
             this->pushBack(tempAcid);
         }
     }
+}
+
+QString Protein::getFormatedAcidNames() {
+    QString acidNames;
+    Protein::Node *iterator = head;
+    while(iterator) {
+        acidNames += "  -" + iterator->data->getLongName() + "\n";
+        iterator = iterator->next;
+    }
+    return acidNames;
 }

@@ -6,7 +6,6 @@
 #include <nonstandartacid.h>
 #include <deque/protein.h>
 #include <QDebug>
-#include <QMessageBox>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -23,168 +22,188 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_LoadProtein_clicked()
 {
-    qDebug() << "LoadProtein_clicked";
     try {
         QString filePath = QFileDialog::getOpenFileName(this, "Load protein",QDir::currentPath(),"Text Files(*.json)");
         Protein loadProtein;
-        qDebug() << "step_1";
         loadProtein.loadSequenceFromFile(filePath);
-        qDebug() << "step_2";
+        if(proteinArray.back().isEmpty()) {
+            proteinArray.pop_back();
+        }
         this->proteinArray.push_back(loadProtein);
-        qDebug() << "step_3";
     } catch (...) {}
+
     if(this->proteinArray.size() == 2) {
         ui->sumSequence->setEnabled(true);
     }
     ui->rmProtein->setEnabled(true);
     if (this->proteinArray.size() == 1) {
         ui->SaveProtein->setEnabled(true);
-        ui->showFirstAcid->setEnabled(true);
-        ui->showLastAcid->setEnabled(true);
-        ui->rmAcid->setEnabled(true);
     } else {
         ui->SaveProtein->setEnabled(false);
     }
+    ui->buttonDeleteEnd->setEnabled(true);
+    ui->buttonDeleteFront->setEnabled(true);
+
+    emit this->showProteinSequence();
 }
 
 void MainWindow::on_rmProtein_clicked()
 {
-    qDebug() << "rmProtein_clicked";
     this->proteinArray.pop_back();
     if(this->proteinArray.size() < 2) {
         ui->sumSequence->setEnabled(false);
     }
-    if(proteinArray.isEmpty()) {
+    if(proteinArray.empty()) {
         ui->rmProtein->setEnabled(false);
-        ui->showFirstAcid->setEnabled(false);
-        ui->showLastAcid->setEnabled(false);
-        ui->rmAcid->setEnabled(false);
     }
     if (this->proteinArray.size() == 1) {
         ui->SaveProtein->setEnabled(true);
     } else {
         ui->SaveProtein->setEnabled(false);
     }
+    if(proteinArray.empty()) {
+        ui->buttonDeleteEnd->setEnabled(false);
+        ui->buttonDeleteFront->setEnabled(false);
+    }
     ui->addProtein->setEnabled(true);
-    ui->LoadProtein->setEnabled(true);
+
+    emit this->showProteinSequence();
 }
 
 void MainWindow::on_addProtein_clicked()
 {
-    qDebug() << "addProtein_clicked";
     Protein protein;
-    qDebug() << "step_1";
     this->proteinArray.push_back(protein);
-    qDebug() << "step_2";
     if(this->proteinArray.size() == 2) {
         ui->sumSequence->setEnabled(true);
     }
     ui->rmProtein->setEnabled(true);
-
-    if (this->proteinArray.size() == 1) {
-        ui->SaveProtein->setEnabled(true);
-    } else {
-        ui->SaveProtein->setEnabled(false);
-    }
-    ui->rmAcid->setEnabled(false);
-    ui->showFirstAcid->setEnabled(false);
-    ui->showLastAcid->setEnabled(false);
+    ui->SaveProtein->setEnabled(false);
     ui->addProtein->setEnabled(false);
-    ui->LoadProtein->setEnabled(false);
-}
+    ui->buttonDeleteEnd->setEnabled(false);
+    ui->buttonDeleteFront->setEnabled(false);
 
+    emit this->showProteinSequence();
+}
 
 void MainWindow::on_SaveProtein_clicked()
 {
-    qDebug() << "SaveProtein_clicked";
     QString filePath = QFileDialog::getSaveFileName(this, "Save protein",QDir::currentPath(),"Text Files(*.json)");
-    qDebug() << "step_1";
-    proteinArray[0].saveSequenceToFile(filePath);
-    qDebug() << "step_2";
+    proteinArray.back().saveSequenceToFile(filePath);
 }
-
 
 void MainWindow::on_sumSequence_clicked()
 {
-    Protein newProtein(proteinArray.first());
-    qDebug() << "sumSequence_clicked";
-    for(auto it = proteinArray.begin() + 1; it != proteinArray.end(); it++) {
-        qDebug() << "step_1";
-        newProtein += (*it);
-        qDebug() << "step_2";
-        qDebug() << "step_3";
+//    Protein newProtein(proteinArray.first());
+//    qDebug() << "sumSequence_clicked";
+//    for(auto it = proteinArray.begin() + 1; it != proteinArray.end(); it++) {
+//        qDebug() << "step_1";
+//        newProtein += (*it);
+//        qDebug() << "step_2";
+//        qDebug() << "step_3";
+//    }
+//    proteinArray.clear();
+//    proteinArray.push_back(newProtein);
+    for(int i = proteinArray.size() - 2; i >= 0; --i) {
+        proteinArray.at(i) += proteinArray.back();
+        proteinArray.pop_back();
     }
-    proteinArray.clear();
-    proteinArray.push_back(newProtein);
     ui->SaveProtein->setEnabled(true);
+    ui->addProtein->setEnabled(true);
     ui->sumSequence->setEnabled(false);
+
+    emit this->showProteinSequence();
 }
 
-
-//void MainWindow::on_addAcid_clicked()
-//{
-//    qDebug() << "addAcid_clicked";
-//    if(!ui->acidName->text().isEmpty()) {
-//        qDebug() << "step_1";
-//        try {
-//            qDebug() << "step_2";
-//            AminoAcid acid(ui->acidName->text());
-//            proteinArray[proteinArray.size()-1].pushBack(&acid);
-//            ui->rmAcid->setEnabled(true);
-//            ui->showFirstAcid->setEnabled(true);
-//            ui->showLastAcid->setEnabled(true);
-//        } catch (...){
-//            qDebug() << "step_3";
-//            QMessageBox::warning(0, "Warning", "Acid " + ui->acidName->text() + " does not exist!");
-//        }
-//        ui->addProtein->setEnabled(true);
-//        ui->LoadProtein->setEnabled(true);
-//    }
-//}
-
-
-//void MainWindow::on_addNonAcid_clicked()
-//{
-//    qDebug() << "addNonAcid_clicked";
-//    if(!ui->acidName->text().isEmpty()) {
-//        qDebug() << "step_1";
-//        try {
-//            qDebug() << "step_2";
-//            NonStandartAcid acid(ui->acidName->text());
-//            proteinArray[proteinArray.size()-1].pushBack(&acid);
-//            ui->rmAcid->setEnabled(true);
-//            ui->showFirstAcid->setEnabled(true);
-//            ui->showLastAcid->setEnabled(true);
-//        } catch (...){
-//            qDebug() << "step_3";
-//            QMessageBox::warning(0, "Warning", "Acid " + ui->acidName->text() + " does not exist!");
-//        }
-//        ui->addProtein->setEnabled(true);
-//        ui->LoadProtein->setEnabled(true);
-//    }
-//}
-
-void MainWindow::on_rmAcid_clicked()
+void MainWindow::on_chooseNonStandardAcid_doubleClicked(const QModelIndex &index)
 {
-    qDebug() << "rmAcid_clicked";
-    if(!proteinArray[proteinArray.size()-1].isEmpty()) {
-        proteinArray[proteinArray.size()-1].popBack();
+    if (proteinArray.empty()) {
+        Protein init;
+        proteinArray.push_back(init);
     }
-    if(proteinArray.last().isEmpty()){
-        ui->rmAcid->setEnabled(false);
-        ui->showFirstAcid->setEnabled(false);
-        ui->showLastAcid->setEnabled(false);
+    NonStandartAcid acid(index.data().toString());
+    if(ui->radioAddToTheEnd->isChecked()) {
+        proteinArray.back().pushBack(&acid);
+    } else {
+        proteinArray.back().pushFront(&acid);
     }
+
+    ui->buttonDeleteEnd->setEnabled(true);
+    ui->buttonDeleteFront->setEnabled(true);
+    ui->addProtein->setEnabled(true);
+    ui->rmProtein->setEnabled(true);
+    if(proteinArray.size() == 1) {
+        ui->SaveProtein->setEnabled(true);
+    }
+
+    emit this->showProteinSequence();
+
+
+
 }
 
-void MainWindow::on_showLastAcid_clicked()
+void MainWindow::on_chooseAminoAcid_doubleClicked(const QModelIndex &index)
 {
-    qDebug() << "showLastAcid_clicked";
-    QMessageBox::information(0, "Information", "Last acid is " +  proteinArray[proteinArray.size()-1].back()->getLongName());
+    if (proteinArray.empty()) {
+        Protein init;
+        proteinArray.push_back(init);
+    }
+    AminoAcid acid(QString((index.data().toString()[0])));
+    if(ui->radioAddToTheEnd->isChecked()) {
+        proteinArray.back().pushBack(&acid);
+    } else {
+        proteinArray.back().pushFront(&acid);
+    }
+    ui->buttonDeleteEnd->setEnabled(true);
+    ui->buttonDeleteFront->setEnabled(true);
+    ui->addProtein->setEnabled(true);
+    ui->rmProtein->setEnabled(true);
+    if(proteinArray.size() == 1) {
+        ui->SaveProtein->setEnabled(true);
+    }
+
+    emit this->showProteinSequence();
 }
 
-void MainWindow::on_showFirstAcid_clicked()
+void MainWindow::on_buttonDeleteEnd_clicked()
 {
-    qDebug() << "showFirstAcid_clicked";
-    QMessageBox::information(0, "Information", "First acid is " +  proteinArray[proteinArray.size()-1].front()->getLongName());
+    proteinArray.back().popBack();
+    if(proteinArray.back().isEmpty()) {
+        ui->buttonDeleteEnd->setEnabled(false);
+        ui->buttonDeleteFront->setEnabled(false);
+    }
+    if(proteinArray.back().isEmpty()) {
+        ui->addProtein->setEnabled(false);
+        ui->SaveProtein->setEnabled(false);
+    }
+
+    emit this->showProteinSequence();
+}
+
+void MainWindow::on_buttonDeleteFront_clicked()
+{
+    proteinArray.back().popFront();
+    if(proteinArray.back().isEmpty()) {
+        ui->buttonDeleteEnd->setEnabled(false);
+        ui->buttonDeleteFront->setEnabled(false);
+    }
+    if(proteinArray.back().isEmpty()) {
+        ui->addProtein->setEnabled(false);
+        ui->SaveProtein->setEnabled(false);
+    }
+
+    emit this->showProteinSequence();
+}
+
+void MainWindow::showProteinSequence()
+{
+    QString browserText;
+    for(int i = 0; i < proteinArray.size(); ++i) {
+        browserText += "Protein #" + QString::number(i+1) +
+                       " (size - " + QString::number(proteinArray[i].size()) + "):\n";
+        if(!proteinArray[i].isEmpty()) {
+            browserText += proteinArray[i].getFormatedAcidNames();
+        }
+    }
+    ui->textBrowser->setText(browserText);
 }

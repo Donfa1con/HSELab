@@ -24,6 +24,7 @@ public:
     void loadSequenceFromFile(QString fileName);
     bool isEmpty() const ;
     size_t size() const ;
+    QString getFormatedAcidNames();
 
 private:
     size_t _size;
